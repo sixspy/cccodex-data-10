@@ -1,0 +1,65 @@
+<section class="card job-card"
+         id="job-card-{{ job.id }}"
+         {% if job.status == 'running' %}
+         hx-get="{{ url_for('jobs.card', job_id=job.id) }}"
+         hx-trigger="every 900ms"
+         hx-swap="outerHTML"
+         {% endif %}>
+  <div class="card-head">
+    <h2>
+      <a href="{{ url_for('jobs.detail', job_id=job.id) }}">{{ job.name }}</a>
+      <span class="tag {{ job.status }}">{{ status_label(job.status) }}</span>
+    </h2>
+    <span class="muted">种子 <code>{{ job.seed_path }}</code></span>
+  </div>
+
+  <dl class="job-stats">
+    <div>
+      <dt>账本条数</dt>
+      <dd id="job-count-{{ job.id }}">{{ count }}</dd>
+    </div>
+    <div>
+      <dt>下一条编码</dt>
+      <dd id="job-next-{{ job.id }}">
+        {% if job.status == 'running' and job.resume_sku %}
+        <code class="next-sku">{{ job.resume_sku }}</code>
+        {% elif job.status == 'paused' and job.resume_sku %}
+        <code class="next-sku">{{ job.resume_sku }}</code>
+        {% else %}
+        <span class="muted">—</span>
+        {% endif %}
+      </dd>
+    </div>
+    <div>
+      <dt>目录条数</dt>
+      <dd>{{ total_source }}</dd>
+    </div>
+  </dl>
+
+  <div class="job-actions">
+    {% if job.status == 'draft' %}
+    <form method="post" action="{{ url_for('jobs.start_job_view', job_id=job.id) }}">
+      <button type="submit" class="btn-start">运行采集</button>
+    </form>
+    {% elif job.status == 'running' %}
+    <form method="post" action="{{ url_for('jobs.pause_job_view', job_id=job.id) }}">
+      <button type="submit" class="btn-pause">喊停</button>
+    </form>
+    {% elif job.status == 'paused' %}
+    <form method="post" action="{{ url_for('jobs.resume_job_view', job_id=job.id) }}">
+      <button type="submit" class="btn-resume">续上</button>
+    </form>
+    {% elif job.status == 'done' %}
+    <p class="muted">已完成于 {{ job.finished_at or '—' }}</p>
+    {% elif job.status == 'failed' %}
+    <p class="muted">采集失败</p>
+    {% endif %}
+    <a class="muted" href="{{ url_for('jobs.detail', job_id=job.id) }}">详情</a>
+  </div>
+
+  <p class="muted hint">
+    <strong>按钮规则：</strong>「喊停」仅在<em>采集中</em>可点（状态变成「已停下」，账本条数就此冻结）；
+    「续上」仅在<em>已停下</em>可点（从「下一条编码」这条往后收，已入账的不再收第二遍）。
+    已停下时不能另起一趟。
+  </p>
+</section>

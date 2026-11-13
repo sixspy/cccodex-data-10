@@ -12,3 +12,7 @@ class Config:
     )
     ADMIN_USER = "admin"
     ADMIN_PASSWORD = "123456"
+    # 后台采集驱动：每隔 COLLECT_STEP_DELAY 秒推进一条；AUTO_COLLECT=False 时只靠页面驱动。
+    AUTO_COLLECT = os.environ.get("AUTO_COLLECT", "1") == "1"
+    COLLECT_STEP_DELAY = float(os.environ.get("COLLECT_STEP_DELAY", "2.0"))
+

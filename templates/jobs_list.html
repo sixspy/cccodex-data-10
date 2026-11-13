@@ -15,29 +15,66 @@
     <button type="submit">创建任务</button>
   </form>
 </section>
-<section class="card">
-  <table>
-    <thead>
-      <tr>
-        <th>ID</th><th>名称</th><th>种子</th><th>状态</th><th>记录数</th><th></th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for j in jobs %}
-      <tr>
-        <td>{{ j.id }}</td>
-        <td>{{ j.name }}</td>
-        <td><code>{{ j.seed_path }}</code></td>
-        <td><span class="tag {{ j.status }}">{{ j.status }}</span></td>
-        <td>{{ counts.get(j.id, 0) }}</td>
-        <td><a href="{{ url_for('jobs.detail', job_id=j.id) }}">详情</a></td>
-      </tr>
-      {% else %}
-      <tr><td colspan="6" class="muted">尚无任务，请先创建</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+
+{% if jobs %}
+<p class="muted">「喊停」只在采集中可点；「续上」只在已停下时可点，续上后从卡片上的「下一条编码」往后收。</p>
+{% for j in jobs %}
+<section class="card job-card" id="job-card-{{ j.id }}"
+         {% if j.status == 'running' %}
+         hx-get="{{ url_for('jobs.card', job_id=j.id) }}"
+         hx-trigger="every 900ms" hx-swap="outerHTML"
+         {% endif %}>
+  <div class="card-head">
+    <h2>
+      <a href="{{ url_for('jobs.detail', job_id=j.id) }}">#{{ j.id }} {{ j.name }}</a>
+      <span class="tag {{ j.status }}">{{ status_label(j.status) }}</span>
+    </h2>
+    <span class="muted">种子 <code>{{ j.seed_path }}</code></span>
+  </div>
+  <dl class="job-stats">
+    <div>
+      <dt>账本条数</dt>
+      <dd>{{ counts.get(j.id, 0) }}</dd>
+    </div>
+    <div>
+      <dt>下一条编码</dt>
+      <dd>
+        {% if j.status in ('running', 'paused') and j.resume_sku %}
+        <code class="next-sku">{{ j.resume_sku }}</code>
+        {% else %}<span class="muted">—</span>{% endif %}
+      </dd>
+    </div>
+    <div>
+      <dt>目录条数</dt>
+      <dd>{{ total_sources.get(j.id, 0) }}</dd>
+    </div>
+  </dl>
+  <div class="job-actions">
+    {% if j.status == 'draft' %}
+    <form method="post" action="{{ url_for('jobs.start_job_view', job_id=j.id) }}">
+      <button type="submit" class="btn-start">运行采集</button>
+    </form>
+    {% elif j.status == 'running' %}
+    <form method="post" action="{{ url_for('jobs.pause_job_view', job_id=j.id) }}">
+      <button type="submit" class="btn-pause">喊停</button>
+    </form>
+    {% elif j.status == 'paused' %}
+    <form method="post" action="{{ url_for('jobs.resume_job_view', job_id=j.id) }}">
+      <button type="submit" class="btn-resume">续上</button>
+    </form>
+    {% elif j.status == 'done' %}
+    <p class="muted">已完成于 {{ j.finished_at or '—' }}</p>
+    {% elif j.status == 'failed' %}
+    <p class="muted">采集失败</p>
+    {% endif %}
+    <a class="muted" href="{{ url_for('jobs.detail', job_id=j.id) }}">详情</a>
+  </div>
 </section>
+{% endfor %}
+{% else %}
+<section class="card"><p class="muted">尚无任务，请先创建</p></section>
+{% endif %}
+
 <p class="muted">Mock 站点可在新标签打开：
   <a href="{{ url_for('mock.catalog', catalog_id='alpha') }}" target="_blank">alpha</a>
   ·

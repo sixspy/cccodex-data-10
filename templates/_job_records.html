@@ -1,0 +1,23 @@
+<section class="card" id="job-records-{{ job.id }}"
+         {% if job.status == 'running' %}
+         hx-get="{{ url_for('jobs.records', job_id=job.id) }}"
+         hx-trigger="every 900ms"
+         hx-swap="outerHTML"
+         {% endif %}>
+  <h2>落库记录 <span class="muted">（{{ records|length }} 条）</span></h2>
+  <table>
+    <thead><tr><th>编码</th><th>item_key</th><th>标题</th><th>时间</th></tr></thead>
+    <tbody>
+      {% for r in records %}
+      <tr>
+        <td><code>{{ r.item_code or '—' }}</code></td>
+        <td><code>{{ r.item_key }}</code></td>
+        <td>{{ r.title }}</td>
+        <td>{{ r.fetched_at }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="muted">尚无记录</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>

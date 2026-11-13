@@ -27,9 +27,22 @@ code { font-size: 0.85em; }
 .tag { padding: 0.15rem 0.45rem; border-radius: 4px; font-size: 0.8rem; background: #2a3545; }
 .tag.done { background: #1e4d3a; color: #9fe0c0; }
 .tag.draft { background: #3a4556; }
+.tag.running { background: #1f3f66; color: #a9cdfa; }
+.tag.paused { background: #5d4a1c; color: #ffd79a; }
 .tag.failed { background: #5a2a2a; color: #ffb3b3; }
 .flash { list-style: none; padding: 0 1.25rem; }
 .flash .ok { color: var(--ok); }
 .flash .error { color: var(--err); }
 .grid-form { display: grid; gap: 0.75rem; grid-template-columns: 1fr 1fr auto; align-items: end; }
 @media (max-width: 720px) { .grid-form { grid-template-columns: 1fr; } }
+
+.job-card .card-head { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; align-items: baseline; }
+.job-stats { display: flex; gap: 2rem; margin: 0.75rem 0 1rem; }
+.job-stats dt { color: var(--muted); font-size: 0.8rem; }
+.job-stats dd { margin: 0.15rem 0 0; font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+.job-stats .next-sku { font-size: 1.05rem; }
+.job-actions { display: flex; align-items: center; gap: 1rem; }
+.job-actions form { margin: 0; }
+.btn-pause { background: #b4541f; border-color: #b4541f; }
+.btn-resume { background: var(--ok); border-color: var(--ok); }
+.hint { margin: 0.9rem 0 0; border-top: 1px solid #2a3545; padding-top: 0.6rem; }
